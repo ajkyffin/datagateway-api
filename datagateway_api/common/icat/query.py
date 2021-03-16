@@ -70,11 +70,13 @@ class ICATQuery:
         :raises PythonICATError: If an error occurs during query execution
         """
 
+        log.debug("start of execute_query()")
         try:
             log.debug("Executing ICAT query: %s", self.query)
             query_result = client.search(self.query)
         except (ICATValidationError, ICATInternalError) as e:
             raise PythonICATError(e)
+        log.debug("1")
 
         flat_query_includes = self.flatten_query_included_fields(self.query.includes)
         mapped_distinct_fields = None
@@ -86,6 +88,7 @@ class ICATQuery:
             if "COUNT" in self.query.aggregate:
                 count_query = True
                 log.debug("This ICATQuery is used for COUNT purposes")
+                log.debug("2")
 
         if self.query.aggregate == "DISTINCT" and not count_query:
             log.info("Extracting the distinct fields from query's conditions")
@@ -103,6 +106,7 @@ class ICATQuery:
 
         if return_json_formattable:
             log.info("Query results will be returned in a JSON format")
+            log.debug("3")
             data = []
 
             for result in query_result:
@@ -113,6 +117,7 @@ class ICATQuery:
                     data.append(dict_result)
                 else:
                     data.append(result)
+            log.debug("4")
 
             return data
         else:

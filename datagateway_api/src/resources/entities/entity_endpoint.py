@@ -6,8 +6,12 @@ from datagateway_api.common.helpers import (
     get_session_id_from_auth_header,
 )
 
+import logging
 
-def get_endpoint(name, entity_type, backend):
+log = logging.getLogger(__name__)
+
+
+def get_endpoint(name, entity_type, backend, **kwargs):
     """
     Given an entity name generate a flask_restful Resource class.
     In main.py these generated classes are registered with the api e.g
@@ -31,6 +35,7 @@ def get_endpoint(name, entity_type, backend):
                     get_session_id_from_auth_header(),
                     entity_type,
                     get_filters_from_query_string(),
+                    **kwargs,
                 ),
                 200,
             )
@@ -72,7 +77,10 @@ def get_endpoint(name, entity_type, backend):
         def post(self):
             return (
                 backend.create(
-                    get_session_id_from_auth_header(), entity_type, request.json,
+                    get_session_id_from_auth_header(),
+                    entity_type,
+                    request.json,
+                    **kwargs,
                 ),
                 200,
             )
@@ -115,7 +123,10 @@ def get_endpoint(name, entity_type, backend):
         def patch(self):
             return (
                 backend.update(
-                    get_session_id_from_auth_header(), entity_type, request.json,
+                    get_session_id_from_auth_header(),
+                    entity_type,
+                    request.json,
+                    **kwargs,
                 ),
                 200,
             )
@@ -159,7 +170,7 @@ def get_endpoint(name, entity_type, backend):
     return Endpoint
 
 
-def get_id_endpoint(name, entity_type, backend):
+def get_id_endpoint(name, entity_type, backend, **kwargs):
     """
     Given an entity name generate a flask_restful Resource class.
     In main.py these generated classes are registered with the api e.g
@@ -180,7 +191,7 @@ def get_id_endpoint(name, entity_type, backend):
         def get(self, id_):
             return (
                 backend.get_with_id(
-                    get_session_id_from_auth_header(), entity_type, id_,
+                    get_session_id_from_auth_header(), entity_type, id_, **kwargs,
                 ),
                 200,
             )
@@ -216,7 +227,9 @@ def get_id_endpoint(name, entity_type, backend):
             """
 
         def delete(self, id_):
-            backend.delete_with_id(get_session_id_from_auth_header(), entity_type, id_)
+            backend.delete_with_id(
+                get_session_id_from_auth_header(), entity_type, id_, **kwargs
+            )
             return "", 204
 
         delete.__doc__ = f"""
@@ -248,8 +261,8 @@ def get_id_endpoint(name, entity_type, backend):
 
         def patch(self, id_):
             session_id = get_session_id_from_auth_header()
-            backend.update_with_id(session_id, entity_type, id_, request.json)
-            return backend.get_with_id(session_id, entity_type, id_), 200
+            backend.update_with_id(session_id, entity_type, id_, request.json, **kwargs)
+            return backend.get_with_id(session_id, entity_type, id_, **kwargs), 200
 
         patch.__doc__ = f"""
             ---
@@ -293,7 +306,7 @@ def get_id_endpoint(name, entity_type, backend):
     return EndpointWithID
 
 
-def get_count_endpoint(name, entity_type, backend):
+def get_count_endpoint(name, entity_type, backend, **kwargs):
     """
     Given an entity name generate a flask_restful Resource class.
     In main.py these generated classes are registered with the api e.g
@@ -308,12 +321,17 @@ def get_count_endpoint(name, entity_type, backend):
     :return: The generated count endpoint class
     """
 
+    # TODO - Add conditional to check type of backend
+    # client = kwargs["client"]
+
     class CountEndpoint(Resource):
         def get(self):
+            log.debug("Start of get() from CountEndpoint")
             filters = get_filters_from_query_string()
+            log.debug("About to return CountEndpoint")
             return (
                 backend.count_with_filters(
-                    get_session_id_from_auth_header(), entity_type, filters,
+                    get_session_id_from_auth_header(), entity_type, filters, **kwargs,
                 ),
                 200,
             )
@@ -350,7 +368,7 @@ def get_count_endpoint(name, entity_type, backend):
     return CountEndpoint
 
 
-def get_find_one_endpoint(name, entity_type, backend):
+def get_find_one_endpoint(name, entity_type, backend, **kwargs):
     """
     Given an entity name generate a flask_restful Resource class.
     In main.py these generated classes are registered with the api e.g
@@ -372,7 +390,7 @@ def get_find_one_endpoint(name, entity_type, backend):
             filters = get_filters_from_query_string()
             return (
                 backend.get_one_with_filters(
-                    get_session_id_from_auth_header(), entity_type, filters,
+                    get_session_id_from_auth_header(), entity_type, filters, **kwargs,
                 ),
                 200,
             )

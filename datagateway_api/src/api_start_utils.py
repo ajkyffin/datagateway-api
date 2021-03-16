@@ -6,6 +6,7 @@ from apispec import APISpec
 from flask_cors import CORS
 from flask_restful import Api
 from flask_swagger_ui import get_swaggerui_blueprint
+import icat.client
 
 from datagateway_api.common.backends import create_backend
 from datagateway_api.common.config import config
@@ -72,47 +73,57 @@ def create_api_endpoints(flask_app, api, spec):
 
     backend = create_backend(backend_type)
 
+    # TODO - What happens if db backend used
+    if backend_type == "python_icat":
+        client = icat.client.Client(
+            config.get_icat_url(), checkCert=config.get_icat_check_cert(),
+        )
+
     for entity_name in endpoints:
         get_endpoint_resource = get_endpoint(
-            entity_name, endpoints[entity_name], backend,
+            entity_name, endpoints[entity_name], backend, client=client,
         )
         api.add_resource(get_endpoint_resource, f"/{entity_name.lower()}")
         spec.path(resource=get_endpoint_resource, api=api)
 
         get_id_endpoint_resource = get_id_endpoint(
-            entity_name, endpoints[entity_name], backend,
+            entity_name, endpoints[entity_name], backend, client=client,
         )
         api.add_resource(get_id_endpoint_resource, f"/{entity_name.lower()}/<int:id_>")
         spec.path(resource=get_id_endpoint_resource, api=api)
 
         get_count_endpoint_resource = get_count_endpoint(
-            entity_name, endpoints[entity_name], backend,
+            entity_name, endpoints[entity_name], backend, client=client,
         )
         api.add_resource(get_count_endpoint_resource, f"/{entity_name.lower()}/count")
         spec.path(resource=get_count_endpoint_resource, api=api)
 
         get_find_one_endpoint_resource = get_find_one_endpoint(
-            entity_name, endpoints[entity_name], backend,
+            entity_name, endpoints[entity_name], backend, client=client,
         )
         api.add_resource(
             get_find_one_endpoint_resource, f"/{entity_name.lower()}/findone",
         )
         spec.path(resource=get_find_one_endpoint_resource, api=api)
 
+    # TODO - Add client passing here
     # Session endpoint
-    session_endpoint_resource = session_endpoints(backend)
+    session_endpoint_resource = session_endpoints(backend, client=client)
     api.add_resource(session_endpoint_resource, "/sessions")
     spec.path(resource=session_endpoint_resource, api=api)
 
+    # TODO - Add client passing here
     # Table specific endpoints
-    instrument_facility_cycle_resource = instrument_facility_cycles_endpoint(backend)
+    instrument_facility_cycle_resource = instrument_facility_cycles_endpoint(
+        backend, client=client
+    )
     api.add_resource(
         instrument_facility_cycle_resource, "/instruments/<int:id_>/facilitycycles",
     )
     spec.path(resource=instrument_facility_cycle_resource, api=api)
 
     count_instrument_facility_cycle_res = count_instrument_facility_cycles_endpoint(
-        backend,
+        backend, client=client,
     )
     api.add_resource(
         count_instrument_facility_cycle_res,
@@ -120,7 +131,9 @@ def create_api_endpoints(flask_app, api, spec):
     )
     spec.path(resource=count_instrument_facility_cycle_res, api=api)
 
-    instrument_investigation_resource = instrument_investigation_endpoint(backend)
+    instrument_investigation_resource = instrument_investigation_endpoint(
+        backend, client=client
+    )
     api.add_resource(
         instrument_investigation_resource,
         "/instruments/<int:instrument_id>/facilitycycles/<int:cycle_id>/investigations",
@@ -128,7 +141,7 @@ def create_api_endpoints(flask_app, api, spec):
     spec.path(resource=instrument_investigation_resource, api=api)
 
     count_instrument_investigation_resource = count_instrument_investigation_endpoint(
-        backend,
+        backend, client=client,
     )
     api.add_resource(
         count_instrument_investigation_resource,
