@@ -55,14 +55,10 @@ def requires_session_id(method):
     def wrapper_requires_session(*args, **kwargs):
         log.debug(f"Kwargs in req session wrapper: {kwargs}, args: {args}")
         try:
-            log.debug("1 - wrapper_requires_session")
             # client = create_client()
-            log.debug("2 - wrapper_requires_session")
             kwargs["client"].sessionId = args[1]
-            log.debug("3 - wrapper_requires_session")
             # Client object put into kwargs so it can be accessed by backend functions
             # kwargs["client"] = client
-            log.debug("4 - wrapper_requires_session")
 
             # Find out if session has expired
             session_time = kwargs["client"].getRemainingMinutes()
@@ -347,15 +343,11 @@ def get_count_with_filters(client, entity_type, filters):
     )
 
     query = ICATQuery(client, entity_type, aggregate="COUNT")
-    log.debug("query made")
 
     filter_handler = FilterOrderHandler()
-    log.debug("filter order handler made")
     filter_handler.manage_icat_filters(filters, query.query)
-    log.debug("order handler managed")
 
     data = query.execute_query(client, True)
-    log.debug("query executed")
 
     # Only ever 1 element in a count query result
     return data[0]

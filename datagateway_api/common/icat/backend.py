@@ -98,9 +98,7 @@ class PythonICATBackend(Backend):
     @requires_session_id
     @queries_records
     def count_with_filters(self, session_id, entity_type, filters, **kwargs):
-        log.debug(f"Start of count_with_filters()")
         client = kwargs["client"] if kwargs["client"] else create_client()
-        log.debug(f"End of count_with_filters()/client made")
         return get_count_with_filters(client, entity_type, filters)
 
     @requires_session_id

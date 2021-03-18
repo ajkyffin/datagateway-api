@@ -326,9 +326,7 @@ def get_count_endpoint(name, entity_type, backend, **kwargs):
 
     class CountEndpoint(Resource):
         def get(self):
-            log.debug("Start of get() from CountEndpoint")
             filters = get_filters_from_query_string()
-            log.debug("About to return CountEndpoint")
             return (
                 backend.count_with_filters(
                     get_session_id_from_auth_header(), entity_type, filters, **kwargs,
