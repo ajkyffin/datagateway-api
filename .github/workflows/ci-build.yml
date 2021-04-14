@@ -58,6 +58,7 @@ jobs:
         wget https://raw.githubusercontent.com/ral-facilities/datagateway-api/bugfix/actions-workflow-ansible/setup-glassfish.py
         cp setup-glassfish.py /home/runner/scripts
         ansible-playbook icat-ansible/hosts-all.yml -i icat-ansible/hosts --vault-password-file icat-ansible/vault_pass.txt -vv
+        cat /home/runner/payara4.1.2.181/glassfish/domains/domain1/logs/server.log
 
     - name: Checkout DataGateway API
       uses: actions/checkout@v2
