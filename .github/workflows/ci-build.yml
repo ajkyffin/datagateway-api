@@ -35,7 +35,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         repository: icatproject-contrib/icat-ansible
-        ref: master
+        ref: change-payara-setup-script-url
         path: icat-ansible
     - name: Install Ansible
       run: pip install -r icat-ansible/requirements.txt
