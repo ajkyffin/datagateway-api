@@ -7,7 +7,7 @@ on:
       - main
 jobs:
   tests:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: true
       matrix:
@@ -17,12 +17,7 @@ jobs:
       - name: Add apt repo
         run: sudo add-apt-repository universe
 
-      # Setup Java & Python
-      - name: Setup Java
-        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3.12.0
-        with:
-          distribution: 'temurin'
-          java-version: 8
+      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
@@ -154,7 +149,7 @@ jobs:
         uses: codecov/codecov-action@eaaf4bedf32dbdc6b720b63067d99c4d77d6047d # v3.1.4
 
   linting:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     name: Linting
     steps:
       - name: Setup Python
@@ -174,7 +169,7 @@ jobs:
         run: nox -s lint
 
   formatting:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     name: Code Formatting
     steps:
       - name: Setup Python
@@ -194,7 +189,7 @@ jobs:
         run: nox -s black
 
   safety:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     name: Dependency Safety
     steps:
       - name: Setup Python
@@ -214,19 +209,14 @@ jobs:
         run: nox -s safety
 
   generator-script-testing:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     continue-on-error: true
     name: icatdb Generator Script Consistency Test
     steps:
       - name: Add apt repo
         run: sudo add-apt-repository universe
 
-      # Setup Java & Python
-      - name: Setup Java
-        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3.12.0
-        with:
-          distribution: 'temurin'
-          java-version: 8
+      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
@@ -367,7 +357,7 @@ jobs:
     # pushed to the main branch.
     needs: [tests, linting, formatting, safety, generator-script-testing]
     name: Docker
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Check out repo
       uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.5.3
