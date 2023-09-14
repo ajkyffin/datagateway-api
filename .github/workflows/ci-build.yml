@@ -9,7 +9,7 @@ jobs:
   tests:
     runs-on: ubuntu-20.04
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
     name: Python ${{ matrix.python-version }} Build & Tests
@@ -17,12 +17,7 @@ jobs:
       - name: Add apt repo
         run: sudo add-apt-repository universe
 
-      # Setup Java & Python
-      - name: Setup Java
-        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3.12.0
-        with:
-          distribution: 'temurin'
-          java-version: 8
+      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
@@ -85,7 +80,7 @@ jobs:
 
       # Prep for running the playbook
       - name: Create hosts file
-        run: echo -e "[icatdb_minimal_hosts]\nlocalhost ansible_connection=local" > icat-ansible/hosts
+        run: echo -e "[hosts_all]\nlocalhost ansible_connection=local" > icat-ansible/hosts
       - name: Prepare vault pass
         run: echo -e "icattravispw" > icat-ansible/vault_pass.txt
       - name: Move vault to directory it'll get detected by Ansible
@@ -108,7 +103,7 @@ jobs:
       # Create local instance of ICAT
       - name: Run ICAT Ansible Playbook
         run: |
-          ansible-playbook icat-ansible/icatdb_minimal_hosts.yml -i icat-ansible/hosts --vault-password-file icat-ansible/vault_pass.txt -vv
+          ansible-playbook icat-ansible/hosts_all.yml -i icat-ansible/hosts --vault-password-file icat-ansible/vault_pass.txt -vv
 
       # rootUserNames needs editing as anon/anon is used in search API and required to pass endpoint tests
       - name: Add anon user to rootUserNames
@@ -221,12 +216,7 @@ jobs:
       - name: Add apt repo
         run: sudo add-apt-repository universe
 
-      # Setup Java & Python
-      - name: Setup Java
-        uses: actions/setup-java@cd89f46ac9d01407894225f350157564c9c7cee2 # v3.12.0
-        with:
-          distribution: 'temurin'
-          java-version: 8
+      # Setup Python
       - name: Setup Python
         uses: actions/setup-python@61a6322f88396a6271a6ee3565807d608ecaddd1 # v4.7.0
         with:
@@ -245,7 +235,7 @@ jobs:
 
       # Prep for running the playbook
       - name: Create hosts file
-        run: echo -e "[icatdb_minimal_hosts]\nlocalhost ansible_connection=local" > icat-ansible/hosts
+        run: echo -e "[hosts_all]\nlocalhost ansible_connection=local" > icat-ansible/hosts
       - name: Prepare vault pass
         run: echo -e "icattravispw" > icat-ansible/vault_pass.txt
       - name: Move vault to directory it'll get detected by Ansible
@@ -268,7 +258,7 @@ jobs:
       # Create local instance of ICAT
       - name: Run ICAT Ansible Playbook
         run: |
-          ansible-playbook icat-ansible/icatdb_minimal_hosts.yml -i icat-ansible/hosts --vault-password-file icat-ansible/vault_pass.txt -vv
+          ansible-playbook icat-ansible/hosts_all.yml -i icat-ansible/hosts --vault-password-file icat-ansible/vault_pass.txt -vv
 
       - name: Checkout DataGateway API
         uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
